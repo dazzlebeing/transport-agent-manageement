@@ -53,10 +53,12 @@ dotnet run
 
 ### Step 3: Configure Application
 1. Update your application's connection string in `appsettings.json`:
+
+For XAMPP setup (without password):
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=3306;Database=tms_db;User=tms_user;Password=tms_password;"
+    "DefaultConnection": "Server=localhost;Port=3306;Database=tms_db;User=root;"
   }
 }
 ```
@@ -71,7 +73,9 @@ dotnet run
 
 - When using Docker, make sure XAMPP's MySQL service is stopped to avoid port conflicts
 - When using XAMPP, make sure the Docker MySQL container is stopped
-- The connection string remains the same for both setups
+- Note: The connection strings are different between Docker and XAMPP setups:
+  - Docker uses: `User=tms_user;Password=tms_password`
+  - XAMPP typically uses: `User=root` (without password)
 
 ## Troubleshooting
 
