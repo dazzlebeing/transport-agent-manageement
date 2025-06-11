@@ -33,6 +33,7 @@ namespace tmsminimalapi.Services.Implementations
                 TotalAmount = bookingDto.TotalAmount,
                 PaidByParty = bookingDto.PaidByParty,
                 Notes = bookingDto.Notes,
+                Status = BookingStatus.Pending,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -48,9 +49,32 @@ namespace tmsminimalapi.Services.Implementations
                 booking.BookingDate,
                 booking.TotalAmount,
                 booking.PaidByParty,
+                booking.Status,
                 booking.Notes,
                 booking.CreatedAt
             );
+        }
+
+        public async Task<IEnumerable<BookingResponseDTO>> GetBookingsByStatusAsync(BookingStatus status)
+        {
+            var bookings = await _context.Bookings
+                .Include(b => b.Party)
+                .Where(b => b.Status == status)
+                .ToListAsync();
+
+            return bookings.Select(b => new BookingResponseDTO(
+                b.Id,
+                b.PartyId,
+                b.Party.PartyName,
+                b.SourceCity,
+                b.DestinationCity,
+                b.BookingDate,
+                b.TotalAmount,
+                b.PaidByParty,
+                b.Status,
+                b.Notes,
+                b.CreatedAt
+            ));
         }
     }
 } 

@@ -1,3 +1,5 @@
+using tmsminimalapi.Models;
+
 namespace tmsminimalapi.DTOs;
 
 public record BookingCreateDTO(
@@ -19,6 +21,7 @@ public record BookingResponseDTO(
     DateTime BookingDate,
     decimal TotalAmount,
     decimal PaidByParty,
+    BookingStatus Status,
     string? Notes,
     DateTime CreatedAt
 ); 

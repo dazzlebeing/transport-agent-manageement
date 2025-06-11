@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace tmsminimalapi.Models;
 
+public enum BookingStatus
+{
+    Pending,
+    Assigned,
+    Completed
+}
+
 public class Booking
 {
     [Key]
@@ -32,11 +39,18 @@ public class Booking
     [Column("paid_by_party")]
     public decimal PaidByParty { get; set; }
 
+    [Required]
+    [Column("status")]
+    public BookingStatus Status { get; set; } = BookingStatus.Pending;
+
     [Column("notes")]
     public string? Notes { get; set; }
 
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("updated_at")]
+    public DateTime? UpdatedAt { get; set; }
 
     // Navigation property
     [ForeignKey("PartyId")]
