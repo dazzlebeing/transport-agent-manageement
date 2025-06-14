@@ -32,6 +32,7 @@ public class BookingAssignmentService : IBookingAssignmentService
         }
 
         var assignments = new List<TruckAssignmentResponseDTO>();
+        decimal totalDriverCost = 0;
 
         foreach (var assignmentRequest in request.Assignments)
         {
@@ -95,6 +96,8 @@ public class BookingAssignmentService : IBookingAssignmentService
                 assignment.Notes,
                 assignment.CreatedAt
             ));
+
+            totalDriverCost += assignmentRequest.AgreedAmount;
         }
 
         // Update booking status to Assigned
@@ -103,11 +106,31 @@ public class BookingAssignmentService : IBookingAssignmentService
 
         await _context.SaveChangesAsync();
 
-        return new BookingAssignmentResponseDTO(request.BookingId, assignments);
+        var analytics = new BookingAssignmentAnalyticsDTO(
+            request.BookingId,
+            booking.Status,
+            assignments.Count,
+            totalDriverCost,
+            assignments
+        );
+
+        return new BookingAssignmentResponseDTO(
+            true,
+            "Trucks assigned successfully. Booking status updated to 'assigned'",
+            analytics
+        );
     }
 
     public async Task<BookingAssignmentResponseDTO> GetBookingAssignmentsAsync(Guid bookingId)
     {
+        var booking = await _context.Bookings
+            .FirstOrDefaultAsync(b => b.Id == bookingId);
+
+        if (booking == null)
+        {
+            throw new KeyNotFoundException($"Booking with ID {bookingId} not found");
+        }
+
         var assignments = await _context.BookingTruckAssignments
             .Include(a => a.Truck)
             .Include(a => a.Driver)
@@ -126,6 +149,20 @@ public class BookingAssignmentService : IBookingAssignmentService
             ))
             .ToListAsync();
 
-        return new BookingAssignmentResponseDTO(bookingId, assignments);
+        var totalDriverCost = assignments.Sum(a => a.AgreedAmount);
+
+        var analytics = new BookingAssignmentAnalyticsDTO(
+            bookingId,
+            booking.Status,
+            assignments.Count,
+            totalDriverCost,
+            assignments
+        );
+
+        return new BookingAssignmentResponseDTO(
+            true,
+            "Booking assignments retrieved successfully",
+            analytics
+        );
     }
 } 

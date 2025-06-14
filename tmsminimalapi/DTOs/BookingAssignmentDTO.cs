@@ -31,7 +31,16 @@ public record TruckAssignmentResponseDTO(
     DateTime CreatedAt
 );
 
-public record BookingAssignmentResponseDTO(
+public record BookingAssignmentAnalyticsDTO(
     Guid BookingId,
+    BookingStatus Status,
+    int AssignmentsCreated,
+    decimal TotalDriverCost,
     List<TruckAssignmentResponseDTO> Assignments
+);
+
+public record BookingAssignmentResponseDTO(
+    bool Success,
+    string Message,
+    BookingAssignmentAnalyticsDTO Data
 ); 

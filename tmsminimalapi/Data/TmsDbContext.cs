@@ -13,6 +13,7 @@ public class TmsDbContext : DbContext
     public DbSet<Party> Parties { get; set; }
     public DbSet<Truck> Trucks { get; set; }
     public DbSet<Driver> Drivers { get; set; }
+    public DbSet<City> Cities { get; set; }
     public DbSet<BookingTruckAssignment> BookingTruckAssignments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,6 +41,19 @@ public class TmsDbContext : DbContext
             .HasOne(b => b.Party)
             .WithMany(p => p.Bookings)
             .HasForeignKey(b => b.PartyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Configure City-Booking relationships
+        modelBuilder.Entity<Booking>()
+            .HasOne(b => b.SourceCity)
+            .WithMany()
+            .HasForeignKey(b => b.SourceCityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Booking>()
+            .HasOne(b => b.DestinationCity)
+            .WithMany()
+            .HasForeignKey(b => b.DestinationCityId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Configure Booking-Assignment relationship
@@ -73,6 +87,10 @@ public class TmsDbContext : DbContext
 
         modelBuilder.Entity<Driver>()
             .HasIndex(d => d.DriverMobile)
+            .IsUnique();
+
+        modelBuilder.Entity<City>()
+            .HasIndex(c => c.Name)
             .IsUnique();
     }
 } 

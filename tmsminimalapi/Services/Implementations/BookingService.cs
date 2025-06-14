@@ -9,10 +9,12 @@ namespace tmsminimalapi.Services.Implementations
     public class BookingService : IBookingService
     {
         private readonly TmsDbContext _context;
+        private readonly ICityService _cityService;
 
-        public BookingService(TmsDbContext context)
+        public BookingService(TmsDbContext context, ICityService cityService)
         {
             _context = context;
+            _cityService = cityService;
         }
 
         public async Task<BookingResponseDTO> CreateBookingAsync(BookingCreateDTO bookingDto)
@@ -23,12 +25,15 @@ namespace tmsminimalapi.Services.Implementations
                 throw new KeyNotFoundException($"Party with ID {bookingDto.PartyId} not found");
             }
 
+            var sourceCity = await _cityService.GetOrCreateCityAsync(bookingDto.SourceCity);
+            var destinationCity = await _cityService.GetOrCreateCityAsync(bookingDto.DestinationCity);
+
             var booking = new Booking
             {
                 Id = Guid.NewGuid(),
                 PartyId = bookingDto.PartyId,
-                SourceCity = bookingDto.SourceCity,
-                DestinationCity = bookingDto.DestinationCity,
+                SourceCityId = sourceCity.Id,
+                DestinationCityId = destinationCity.Id,
                 BookingDate = bookingDto.BookingDate,
                 TotalAmount = bookingDto.TotalAmount,
                 PaidByParty = bookingDto.PaidByParty,
@@ -44,8 +49,8 @@ namespace tmsminimalapi.Services.Implementations
                 booking.Id,
                 booking.PartyId,
                 party.PartyName,
-                booking.SourceCity,
-                booking.DestinationCity,
+                sourceCity.Name,
+                destinationCity.Name,
                 booking.BookingDate,
                 booking.TotalAmount,
                 booking.PaidByParty,
@@ -59,6 +64,8 @@ namespace tmsminimalapi.Services.Implementations
         {
             var bookings = await _context.Bookings
                 .Include(b => b.Party)
+                .Include(b => b.SourceCity)
+                .Include(b => b.DestinationCity)
                 .Where(b => b.Status == status)
                 .ToListAsync();
 
@@ -66,8 +73,8 @@ namespace tmsminimalapi.Services.Implementations
                 b.Id,
                 b.PartyId,
                 b.Party.PartyName,
-                b.SourceCity,
-                b.DestinationCity,
+                b.SourceCity.Name,
+                b.DestinationCity.Name,
                 b.BookingDate,
                 b.TotalAmount,
                 b.PaidByParty,

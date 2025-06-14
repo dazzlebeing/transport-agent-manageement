@@ -49,6 +49,15 @@ app.MapGet("/api/parties/search", async (IPartyService partyService, string quer
 .WithName("SearchParties")
 .WithOpenApi();
 
+// City endpoints
+app.MapGet("/api/cities/search", async (ICityService cityService, string searchTerm) =>
+{
+    var cities = await cityService.SearchCitiesAsync(searchTerm);
+    return Results.Ok(cities);
+})
+.WithName("SearchCities")
+.WithOpenApi();
+
 // Booking endpoints
 app.MapPost("/api/bookings", async (IBookingService bookingService, BookingCreateDTO bookingDto) =>
 {

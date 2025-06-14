@@ -10,6 +10,7 @@ namespace tmsminimalapi.Extensions
             services.AddScoped<IPartyService, PartyService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IBookingAssignmentService, BookingAssignmentService>();
+            services.AddScoped<ICityService, CityService>();
 
             return services;
         }
